@@ -2,9 +2,12 @@
 # coding=utf-8
 
 """
-    This is a python3 and pygame based maze runner game lib for the Programming Course Design.
-    @author: Spico
-    @date: 2017/07/06
+This is a python3 and pygame based maze runner game lib
+for the Programming Course Design.
+
+@author: Spico
+@date: 2017/07/06
+@repo: github.com/Spico197/maze_runner
 """
 
 # ------------------ Lib Import ------------------ #
@@ -33,6 +36,18 @@ SCREEN_HEIGHT = 600
 blood = 100
 
 done = False  # main-loop flag
+
+# ---------------- Resource Data Path ------------------ #
+FONT_PATH = "../data/font/msyh.ttc"
+TEACHER_IMAGE_PATH = "../data/pic/ds_30.jpg"
+PLAYER_IMAGE_PATH = "../data/pic/mumu_30.jpg"
+BACKGROUND_MUSIC_PATH = "../data/music/bgm_zalababa.mp3"
+PRINCESS_IMAGE_PATH = "../data/pic/xiaoxiao_50.jpg"
+QUESTION_WORKBOOK_PATH = "../data/question/question_cn.xlsx"
+RIGHT_ANSWER_MUSIC_PATH = "../data/music/right.mp3"
+WRONG_ANSWER_MUSIC_PATH = "../data/music/wrong.mp3"
+LOSE_GAME_MUSIC_PATH = "../data/music/lose.mp3"
+VICTORY_MUSIC_PATH = "../data/music/victory.ogg"
 
 
 # ------------------ Class Definition ------------------ #
@@ -64,19 +79,22 @@ class Maze(object):
         for row in range(rows):    # row&col start from 0 to cols-1
             for col in range(cols):
                 if self.road_mat[row][col] == 1:
-                    road = Road(ROAD_THICKNESS*col, ROAD_THICKNESS*row)
+                    road = Road(ROAD_THICKNESS * col, ROAD_THICKNESS * row)
                     road_list.add(road)
-                self.unvisited.append([row, col])   # get in all the matrix points
+                # get in all the matrix points
+                self.unvisited.append([row, col])
 
         # wall maze drawing
         for row_inv in range(1, rows):
             for col_inv in range(0, cols):
-                wall = Wall(col_inv*ROAD_THICKNESS, row_inv*ROAD_THICKNESS-WALL_THICKNESS/2, 1)
+                wall = Wall(col_inv * ROAD_THICKNESS,
+                            row_inv * ROAD_THICKNESS - WALL_THICKNESS / 2, 1)
                 wall_list.add(wall)
                 self.wall_table.append(wall)
         for col_inv in range(1, cols):
             for row_inv in range(0, rows):
-                wall = Wall(col_inv*ROAD_THICKNESS-WALL_THICKNESS/2, row_inv*ROAD_THICKNESS, 2)
+                wall = Wall(col_inv * ROAD_THICKNESS - WALL_THICKNESS / 2,
+                            row_inv * ROAD_THICKNESS, 2)
                 wall_list.add(wall)
                 self.wall_table.append(wall)
 
@@ -102,10 +120,6 @@ class Maze(object):
                     exit_row = row_mat
                     exit_col = col_mat
 
-        # if (exit_row == row and math.fabs(exit_col - col) == 1) or \
-        #         (exit_col == col and math.fabs(exit_row - row) == 1):
-        #     flag = True
-
         if exit_row == row and exit_col == col:
             flag = True
 
@@ -116,13 +130,12 @@ class Maze(object):
         dfs algorithm to generate the wall group
         @param start_pos: the position that mumu is ready to go
         @param wall_list: wall group remaining to change
-        @return: if the maze is good to run, return wall_list, else return False
+        @return: if the maze is good to run, return wall_list,
+                 else return False
         """
-        rows = len(self.road_mat)
-        cols = len(self.road_mat[0])
-
         self.unvisited.remove(start_pos)
-        self.visited.append(start_pos)  # maze.visited add the start_pos and remove the start_pos in unvisited
+        # maze.visited add the start_pos and remove the start_pos in unvisited
+        self.visited.append(start_pos)
         current_stack = [start_pos]
 
         find = False
@@ -133,7 +146,8 @@ class Maze(object):
                 if current_stack:
                     start_pos = current_stack.pop()
                 else:
-                    start_pos = self.unvisited[random.randrange(0, len(self.unvisited))]
+                    start_pos = self.unvisited[
+                        random.randrange(0, len(self.unvisited))]
                 continue
 
             current_stack.append(next_pos)
@@ -167,17 +181,22 @@ class Maze(object):
         col = len(self.road_mat[0])
         row_now = pos_now[0]
         col_now = pos_now[1]
-        tag_up_down = row_now * col + col_now  # judge the up&down tag comparision
-        tag_left_right = col_now * row + row_now  # judge the left&right tag comparision
+        # judge the up&down tag comparision
+        tag_up_down = row_now * col + col_now
+        # judge the left&right tag comparision
+        tag_left_right = col_now * row + row_now
         neighbor = []
 
-        if tag_up_down + col <= row * col + col and [row_now + 1, col_now] in self.unvisited:
+        if tag_up_down + col <= row * col + col \
+                and [row_now + 1, col_now] in self.unvisited:
             neighbor.append([row_now + 1, col_now])
         if tag_up_down - col >= 0 and [row_now - 1, col_now] in self.unvisited:
             neighbor.append([row_now - 1, col_now])
-        if tag_left_right + row <= row * col + col and [row_now, col_now + 1] in self.unvisited:
+        if tag_left_right + row <= row * col + col \
+                and [row_now, col_now + 1] in self.unvisited:
             neighbor.append([row_now, col_now + 1])
-        if tag_left_right - row >= 0 and [row_now, col_now - 1] in self.unvisited:
+        if tag_left_right - row >= 0 \
+                and [row_now, col_now - 1] in self.unvisited:
             neighbor.append([row_now, col_now - 1])
 
         if not neighbor:
@@ -197,7 +216,8 @@ class Maze(object):
         cols = len(self.road_mat[0])
         location = 0
 
-        if pos1[0] == pos2[0] and math.fabs(pos1[1] - pos2[1]) == 1:  # left&right border
+        # left & right border
+        if pos1[0] == pos2[0] and math.fabs(pos1[1] - pos2[1]) == 1:
             if pos1[1] - pos2[1] == -1:  # pos1 at the left
                 location = (rows - 1) * cols + pos1[1] * rows + pos1[0]
             elif pos1[1] - pos2[1] == 1:
@@ -217,9 +237,9 @@ class Maze(object):
 
 class Road(pygame.sprite.Sprite):
     """
-        @brief: road class inherited from sprite and image loaded
-        @param: x: x-direction position
-        @param: y: y-direction position
+    @brief: road class inherited from sprite and image loaded
+    @param: x: x-direction position
+    @param: y: y-direction position
     """
 
     def __init__(self, x, y):  # constructor function
@@ -239,9 +259,9 @@ class Road(pygame.sprite.Sprite):
 
 class Wall(pygame.sprite.Sprite):
     """
-        @brief: wall class inherited from sprite and image loaded
-        @param: x: x-direction position
-        @param: y: y-direction position
+    @brief: wall class inherited from sprite and image loaded
+    @param: x: x-direction position
+    @param: y: y-direction position
     """
 
     def __init__(self, x, y, mode):  # constructor function
@@ -265,7 +285,7 @@ class Wall(pygame.sprite.Sprite):
 
 class Player(pygame.sprite.Sprite):
     """
-        @brief: the Player class inherited from sprite and image loaded
+    @brief: the Player class inherited from sprite and image loaded
     """
 
     change_x = 0    # speed
@@ -273,14 +293,14 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         """
-            constructor function
-            @param x: x-position
-            @param y: y-position
+        constructor function
+        @param x: x-position
+        @param y: y-position
         """
 
         super().__init__()  # inherited
 
-        self.image = pygame.image.load('../data/pic/mumu_30.jpg')
+        self.image = pygame.image.load(PLAYER_IMAGE_PATH)
         # image/rect are the properties of the sprite class
         self.rect = self.image.get_rect()   # top left corner location
         self.rect.y = y
@@ -295,6 +315,10 @@ class Player(pygame.sprite.Sprite):
 
         self.change_x += x
         self.change_y += y
+
+    def reset_speed(self):
+        self.change_x = 0
+        self.change_y = 0
 
     def move(self, walls):
         """
@@ -351,11 +375,19 @@ class Teacher(pygame.sprite.Sprite):
         constructor function
         """
         super().__init__()
-        self.image = pygame.image.load('../data/pic/ds_30.jpg').convert()
+        self.image = pygame.image.load(TEACHER_IMAGE_PATH).convert()
         self.rect = self.image.get_rect()  # top-left corner location
 
 
 # ------------------ Function Definition ------------------ #
+def display_texts_page(screen, texts, flip=True):
+    screen.fill(WARM_GREY)
+    font_wel = pygame.font.Font(FONT_PATH, 20)
+    for text_idx, text in enumerate(texts):
+        text_wel = font_wel.render(text, True, BLACK)
+        screen.blit(text_wel, [50, 50 + text_idx * 30])
+    if flip:
+        pygame.display.flip()
 
 
 def welcome(screen_wel):
@@ -364,63 +396,32 @@ def welcome(screen_wel):
     @param screen_wel: the screen which is ready to make an output
     @return: none
     """
-    screen_wel.fill(WARM_GREY)
-
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("故事发生在名为大数据的王国，", True, BLACK)
-    screen_wel.blit(text_wel, [50, 50])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("这里的人们以知识和技术为尊，人们享受着新兴技术", True, BLACK)
-    screen_wel.blit(text_wel, [50, 80])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("给他们带来的生活便利,安居乐业。", True, BLACK)
-    screen_wel.blit(text_wel, [50, 110])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("有一天，王宫中传来了国王的叹息声，", True, BLACK)
-    screen_wel.blit(text_wel, [50, 140])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("原来国王唯一的女儿小小在闯期末考核时发生了意外，", True, BLACK)
-    screen_wel.blit(text_wel, [50, 170])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("被困在知识迷岛里面，国王不但担忧着女儿的安危，", True, BLACK)
-    screen_wel.blit(text_wel, [50, 200])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("更担忧女儿无法继承他的王位，思虑多时，国王最终", True, BLACK)
-    screen_wel.blit(text_wel, [50, 230])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("决定，贴榜昭告天下，凡是能救出公主的，就可以成为", True, BLACK)
-    screen_wel.blit(text_wel, [50, 260])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("王国的驸马。万千勇士收到消息便不及待地踏上了征程，", True, BLACK)
-    screen_wel.blit(text_wel, [50, 290])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("而这当中就有一位名唤木木的少年……", True, BLACK)
-    screen_wel.blit(text_wel, [50, 320])
-
-    pygame.display.flip()
+    texts = [
+        "故事发生在名为大数据的王国，",
+        "这里的人们以知识和技术为尊，人们享受着新兴技术",
+        "给他们带来的生活便利",
+        "有一天，王宫中传来了国王的叹息声，",
+        "原来国王唯一的女儿小小在闯期末考核时发生了意外，",
+        "被困在知识迷岛里面，国王不但担忧着女儿的安危，",
+        "更担忧女儿无法继承他的王位，思虑多时，国王最终",
+        "决定，贴榜昭告天下，凡是能救出公主的，就可以成为",
+        "王国的驸马。万千勇士收到消息便不及待地踏上了征程，",
+        "而这当中就有一位名唤木木的少年……",
+    ]
+    display_texts_page(screen_wel, texts)
     pygame.time.wait(3000)
 
-    screen_wel.fill(WARM_GREY)
+    texts = [
+        "勇士木木来到了知识迷岛，却发现这座岛比他想象的要",
+        "复杂得多，整座岛是一个非常大的迷宫，道路错综复杂，",
+        "更麻烦的是重要的关卡还有擅长不同学科的老师的把守，",
+        "要想让老师放路，就只能乖乖的通过老师的考试，通过",
+        "考试就可以得到迷宫道路中的提示，找到公主，完成游",
+        "戏。反之，则游戏失败。",
+    ]
+    display_texts_page(screen_wel, texts, flip=False)
 
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("勇士木木来到了知识迷岛，却发现这座岛比他想象的要", True, BLACK)
-    screen_wel.blit(text_wel, [50, 50])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("复杂得多，整座岛是一个非常大的迷宫，道路错综复杂，", True, BLACK)
-    screen_wel.blit(text_wel, [50, 80])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("更麻烦的是重要的关卡还有擅长不同学科的老师的把守，", True, BLACK)
-    screen_wel.blit(text_wel, [50, 110])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("要想让老师放路，就只能乖乖的通过老师的考试，通过", True, BLACK)
-    screen_wel.blit(text_wel, [50, 140])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("考试就可以得到迷宫道路中的提示，找到公主，完成游", True, BLACK)
-    screen_wel.blit(text_wel, [50, 170])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 20)
-    text_wel = font_wel.render("戏。反之，则游戏失败。", True, BLACK)
-    screen_wel.blit(text_wel, [50, 200])
-    font_wel = pygame.font.Font('../data/font/msyh.ttc', 50)
+    font_wel = pygame.font.Font(FONT_PATH, 50)
     text_wel = font_wel.render("木木勇士，冲冲冲！", True, (235, 63, 47))
     screen_wel.blit(text_wel, [50, 300])
 
@@ -434,10 +435,9 @@ def blood_loss(screen_loss):
     @param screen_loss: the screen you are ready to make an output
     @return: none
     """
-    font_loss = pygame.font.Font('../data/font/msyh.ttc', 60)
+    font_loss = pygame.font.Font(FONT_PATH, 60)
     text_loss = font_loss.render("你个渣渣", True, RED)
     screen_loss.blit(text_loss, [100, 100])
-    font_loss = pygame.font.Font('../data/font/msyh.ttc', 60)
     text_loss = font_loss.render("BLOOD -20~", True, RED)
     screen_loss.blit(text_loss, [100, 200])
 
@@ -451,9 +451,8 @@ def answer_right(screen_right):
     @param screen_right: the screen you are ready to make an output
     @return: none
     """
-    font_right = pygame.font.Font('../data/font/msyh.ttc', 60)
+    font_right = pygame.font.Font(FONT_PATH, 60)
     text_right = font_right.render("You're Right~", True, RED)
-
     screen_right.blit(text_right, [100, 100])
 
     pygame.display.flip()
@@ -472,12 +471,12 @@ def lose(screen_lose):
     pygame.mixer.music.fadeout(500)  # bgm music stop
     pygame.time.wait(500)
 
-    pygame.mixer.music.load('../data/music/lose.mp3')
+    pygame.mixer.music.load(LOSE_GAME_MUSIC_PATH)
     pygame.mixer.music.play()
 
-    font_vic1 = pygame.font.Font('../data/font/msyh.ttc', 60)
-    font_vic2 = pygame.font.Font('../data/font/msyh.ttc', 60)
-    font_vic3 = pygame.font.Font('../data/font/msyh.ttc', 60)
+    font_vic1 = pygame.font.Font(FONT_PATH, 60)
+    font_vic2 = pygame.font.Font(FONT_PATH, 60)
+    font_vic3 = pygame.font.Font(FONT_PATH, 60)
     font_vic4 = pygame.font.SysFont('TimesNewRoman', 60)
     text_vic1 = font_vic1.render("Oops~", True, BLACK)
     text_vic2 = font_vic2.render("看来你的火候还不够", True, BLACK)
@@ -514,15 +513,15 @@ def victory(screen_vic):
     pygame.mixer.music.fadeout(1000)    # bgm music stop
     pygame.time.wait(500)
 
-    pygame.mixer.music.load('../data/music/victory.ogg')
+    pygame.mixer.music.load(VICTORY_MUSIC_PATH)
     pygame.mixer.music.play()
 
-    font_vic1 = pygame.font.Font('../data/font/msyh.ttc', 60)
-    font_vic2 = pygame.font.Font('../data/font/msyh.ttc', 60)
-    font_vic3 = pygame.font.Font('../data/font/msyh.ttc', 40)
-    font_vic4 = pygame.font.Font('../data/font/msyh.ttc', 40)
-    font_vic5 = pygame.font.Font('../data/font/msyh.ttc', 20)
-    font_vic6 = pygame.font.Font('../data/font/msyh.ttc', 20)
+    font_vic1 = pygame.font.Font(FONT_PATH, 60)
+    font_vic2 = pygame.font.Font(FONT_PATH, 60)
+    font_vic3 = pygame.font.Font(FONT_PATH, 40)
+    font_vic4 = pygame.font.Font(FONT_PATH, 40)
+    font_vic5 = pygame.font.Font(FONT_PATH, 20)
+    font_vic6 = pygame.font.Font(FONT_PATH, 20)
     text_vic1 = font_vic1.render("Congratulations!", True, BLACK)
     text_vic2 = font_vic2.render("你拯救了公主!", True, BLACK)
     text_vic3 = font_vic3.render("但由于你胆敢觊觎公主的美色，", True, BLACK)
@@ -551,8 +550,6 @@ def victory(screen_vic):
 
 
 # ------------------ Main Loop ------------------ #
-
-
 def main():
     """
     the main loop funtion
@@ -565,30 +562,11 @@ def main():
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption("期末大作战")
 
-    road_mat_12_16 = [
-        [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1]
-    ]
-    road_mat = [
-        [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, 1],
-    ]
+    road_mat_12_16 = [[1]*16 for _ in range(12)]
+    # entry point
+    road_mat_12_16[0][1] = 0
+    # final_point
+    road_mat_12_16[-1][-2] = -1
 
     main_maze = Maze()
     main_maze.road_mat = road_mat_12_16
@@ -596,7 +574,8 @@ def main():
 
     road_list = pygame.sprite.Group()
     wall_list = pygame.sprite.Group()
-    main_maze.maze_generate(road_list, wall_list)    # generate the initial state
+    # generate the initial state
+    main_maze.maze_generate(road_list, wall_list)
 
     wall_list_dfs = main_maze.dfs_maze_generate([0, 1], wall_list)
     while not wall_list_dfs:
@@ -620,24 +599,24 @@ def main():
     teacher_list = pygame.sprite.Group()
     for i in range(15):
         tea = Teacher()
-        tea.rect.x = random.randrange(ROAD_THICKNESS, SCREEN_WIDTH-ROAD_THICKNESS, 50)
-        tea.rect.y = random.randrange(ROAD_THICKNESS, SCREEN_HEIGHT-ROAD_THICKNESS, 50)
+        tea.rect.x = random.randrange(
+            ROAD_THICKNESS, SCREEN_WIDTH - ROAD_THICKNESS, 50)
+        tea.rect.y = random.randrange(
+            ROAD_THICKNESS, SCREEN_HEIGHT - ROAD_THICKNESS, 50)
         teacher_list.add(tea)
 
     clock = pygame.time.Clock()
 
     # --------- BGM Loaded --------- #
-    bgm = pygame.mixer.music.load('../data/music/bgm_zalababa.mp3')
+    pygame.mixer.music.load(BACKGROUND_MUSIC_PATH)
     pygame.mixer.music.play()
 
     # --------- Figure Loaded --------- #
-    xiaoxiao_image = pygame.image.load('../data/pic/xiaoxiao_50.jpg').convert()
+    xiaoxiao_image = pygame.image.load(PRINCESS_IMAGE_PATH).convert()
 
     # --------- Question Loaded --------- #
-    wb = load_workbook(filename='../data/question/question_cn.xlsx')
+    wb = load_workbook(filename=QUESTION_WORKBOOK_PATH)
     ws = wb.get_sheet_by_name('Sheet1')
-    question_taboo_list = []
-
 
     # welcome
     welcome(screen)
@@ -679,28 +658,29 @@ def main():
         # ask questions
         question_list = pygame.sprite.spritecollide(player, teacher_list, True)
         row_rand = random.randrange(1, 21, 1)
-        # while row_rand in question_taboo_list:
-        #     row_rand = random.randrange(1, 21, 1)
-        #
-        # question_taboo_list.append(row_rand)
         for row in question_list:
+            player.reset_speed()
             screen.fill(WARM_GREY)
             position = ('B' + str(row_rand))
-            font_wb = pygame.font.Font('../data/font/msyh.ttc', 15)
+            font_wb = pygame.font.Font(FONT_PATH, 15)
             text_wb = font_wb.render(ws[position].value, True, BLACK)
 
             position_a = ('C' + str(row_rand))
-            font_option_a = pygame.font.Font('../data/font/msyh.ttc', 15)
-            text_option_a = font_option_a.render(ws[position_a].value, True, BLACK)
+            font_option_a = pygame.font.Font(FONT_PATH, 15)
+            text_option_a = font_option_a.render(
+                ws[position_a].value, True, BLACK)
             position_b = ('D' + str(row_rand))
-            font_option_b = pygame.font.Font('../data/font/msyh.ttc', 15)
-            text_option_b = font_option_b.render(ws[position_b].value, True, BLACK)
+            font_option_b = pygame.font.Font(FONT_PATH, 15)
+            text_option_b = font_option_b.render(
+                ws[position_b].value, True, BLACK)
             position_c = ('E' + str(row_rand))
-            font_option_c = pygame.font.Font('../data/font/msyh.ttc', 15)
-            text_option_c = font_option_c.render(ws[position_c].value, True, BLACK)
+            font_option_c = pygame.font.Font(FONT_PATH, 15)
+            text_option_c = font_option_c.render(
+                ws[position_c].value, True, BLACK)
             position_d = ('F' + str(row_rand))
-            font_option_d = pygame.font.Font('../data/font/msyh.ttc', 15)
-            text_option_d = font_option_d.render(ws[position_d].value, True, BLACK)
+            font_option_d = pygame.font.Font(FONT_PATH, 15)
+            text_option_d = font_option_d.render(
+                ws[position_d].value, True, BLACK)
 
             screen.blit(text_wb, [50, 20])
             screen.blit(text_option_a, [50, 40])
@@ -716,18 +696,6 @@ def main():
             while not ok:
                 for event in pygame.event.get():
                     if event.type == pygame.KEYUP:
-                        if event.key == pygame.K_LEFT:
-                            player.changespeed(3, 0)
-                            ok = False
-                        if event.key == pygame.K_RIGHT:
-                            player.changespeed(-3, 0)
-                            ok = False
-                        if event.key == pygame.K_UP:
-                            player.changespeed(0, 3)
-                            ok = False
-                        if event.key == pygame.K_DOWN:
-                            player.changespeed(0, -3)
-                            ok = False
                         if event.key == pygame.K_a:
                             answer = 'A'
                             ok = True
@@ -746,33 +714,35 @@ def main():
                             ok = False
             if answer == right_answer:
                 answer_right(screen)
-                # pygame.mixer.music.load('../data/music/right.mp3')
+                # pygame.mixer.music.load(RIGHT_ANSWER_MUSIC_PATH)
                 # pygame.mixer.music.play()
             else:
                 blood -= 20
                 blood_loss(screen)
-                # pygame.mixer.music.load('../data/music/wrong.mp3')
+                # pygame.mixer.music.load(WRONG_ANSWER_MUSIC_PATH)
                 # pygame.mixer.music.play()
 
         if blood <= 0:
             lose(screen)
 
-        # MARK: \ line break
-        if player.rect.top > SCREEN_HEIGHT - ROAD_THICKNESS and player.rect.left >= \
-                SCREEN_WIDTH - 2*ROAD_THICKNESS and player.rect.right <= SCREEN_WIDTH and blood > 0:
+        if player.rect.top > SCREEN_HEIGHT - ROAD_THICKNESS \
+                and player.rect.left >= SCREEN_WIDTH - 2 * ROAD_THICKNESS \
+                and player.rect.right <= SCREEN_WIDTH and blood > 0:
             victory(screen)
 
         # --------- Game Graphics --------- #
         screen.fill(WARM_GREY)
 
-        screen.blit(xiaoxiao_image, (SCREEN_WIDTH-2*ROAD_THICKNESS, SCREEN_HEIGHT-ROAD_THICKNESS))
+        screen.blit(xiaoxiao_image,
+                    (SCREEN_WIDTH - 2 * ROAD_THICKNESS,
+                     SCREEN_HEIGHT-ROAD_THICKNESS))
 
         wall_list_dfs.draw(screen)
         teacher_list.draw(screen)
         movingsprites.draw(screen)
 
         # text on screen
-        font = pygame.font.SysFont('../data/font/msyh.ttc', 30)
+        font = pygame.font.SysFont(FONT_PATH, 30)
         text = font.render("Blood: " + str(blood), True, RED)
         screen.blit(text, [0, 0])
         # --------- Refresh & Clock Set --------- #
